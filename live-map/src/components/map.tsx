@@ -26,32 +26,46 @@ type MapComponentProps = {
   currentPosition: GeolocationCoordinates | null;
 };
 
-const createCircularIcon = async (url: string, size = 60, emoji?: string): Promise<string> => {
+const createCircularIcon = async (
+  url: string,
+  imageSize = 75,
+  emoji?: string
+): Promise<string> => {
   const img = new Image();
   img.crossOrigin = 'Anonymous';
   img.src = url;
 
   return new Promise((resolve) => {
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d')!;
+      const emojiHeight = 34;
+      const emojiGap = 8;
+      const canvasWidth = imageSize + emojiGap + emojiHeight;
+      const canvasHeight = imageSize + emojiGap + emojiHeight;
 
-      // Draw circle image
+      const canvas = document.createElement('canvas');
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+
+      const ctx = canvas.getContext('2d')!;
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      // Draw circle mask
+      ctx.save();
       ctx.beginPath();
-      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2, true);
+      ctx.arc(canvasWidth / 2, imageSize / 2, imageSize / 2, 0, Math.PI * 2, true);
       ctx.closePath();
       ctx.clip();
-      ctx.drawImage(img, 0, 0, size, size);
 
-      // Draw emoji in bottom-right
+      // Draw image inside the clipped circle
+      ctx.drawImage(img, 0, 0, imageSize + emojiGap + emojiHeight, imageSize + emojiGap + emojiHeight);
+      ctx.restore();
+
+      // Draw emoji below the image, perfectly centered
       if (emoji) {
-        console.log('Drawing emoji:', emoji); 
-        ctx.font = '20px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText(emoji, size - 8, size - 6); // pull it up and left a bit        
+        ctx.font = '28px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(emoji, canvasWidth / 2, imageSize + emojiGap);
       }
 
       resolve(canvas.toDataURL());

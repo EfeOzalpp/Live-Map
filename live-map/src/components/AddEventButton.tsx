@@ -79,7 +79,7 @@ const AddEventButton: React.FC<AddEventButtonProps> = ({ currentPosition }) => {
       ) : (
         <div className="caption-overlay">
           <div className="caption-input-wrapper">
-            <label className="caption-label">Put a caption for your event:</label>
+            <label className="caption-label">Put a caption for your event</label>
             <input
               type="text"
               className="caption-input"
@@ -88,7 +88,7 @@ const AddEventButton: React.FC<AddEventButtonProps> = ({ currentPosition }) => {
               placeholder="Describe the event..."
             />
 
-            <label className="caption-label">Optional short text / emoji (max 3):</label>
+            <label className="caption-label-2">Put a defining emoji</label>
             <input
               type="text"
               className="caption-input"

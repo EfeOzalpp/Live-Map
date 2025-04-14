@@ -93,11 +93,15 @@ code {
   margin-top: 1rem;
 }
 
-.caption-label {
+.caption-label, .caption-label-2 {
   color: rgb(21, 21, 21);
   font-size: 1.95rem;
   margin-bottom: 0.8rem;
   font-weight: 500;
+}
+
+.caption-label-2 {
+  padding-top: 1.8em;
 }
 
 .caption-input {
@@ -223,13 +227,15 @@ code {
     margin-top: 1rem;
   }
   
-  .caption-label {
+  .caption-label, .caption-label-2 {
     color: rgb(21, 21, 21);
     font-size: 1.95rem;
     margin-bottom: 0.8rem;
     font-weight: 500;
   }
-  
+  .caption-label-2 {
+    padding-top: 1.4em;
+  }
   .caption-input {
     max-width: 400px;
     font-size: 1.6rem;
@@ -258,7 +264,7 @@ code {
   
   .caption-overlay {
     position: fixed;
-    top: -59vw;
+    top: -179vw;
     right: -50vw;
     width: 100vw;
     height: 160vh;
@@ -353,11 +359,15 @@ code {
     margin-top: 1rem;
   }
   
-  .caption-label {
+  .caption-label, .caption-label-2 {
     color: rgb(21, 21, 21);
     font-size: 1.6rem;
     margin-bottom: 0.8rem;
     font-weight: 500;
+  }
+
+  .caption-label-2 {
+    padding-top: 1.2em;
   }
   
   .caption-input {
@@ -389,7 +399,7 @@ code {
   
   .caption-overlay {
     position: fixed;
-    top: -234vw;
+    top: -247vw;
     right: -50vw;
     width: 100vw;
     height: 145vh;
