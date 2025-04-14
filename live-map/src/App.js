@@ -7,12 +7,19 @@ function App() {
   const [location, setLocation] = useState(null);
 
   useEffect(() => {
+    if (!navigator.geolocation) {
+      console.warn('Geolocation not supported. Using fallback.');
+      setLocation({ latitude: 40.7128, longitude: -74.006 }); // NYC fallback
+      return;
+    }
+
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         setLocation(pos.coords);
       },
       (err) => {
         console.error('Geolocation error:', err);
+        setLocation({ latitude: 40.7128, longitude: -74.006 }); // fallback
       },
       {
         enableHighAccuracy: true,

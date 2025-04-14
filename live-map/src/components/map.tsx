@@ -19,13 +19,14 @@ type Pin = {
   lng: number;
   timestamp: number;
   caption?: string;
+  emoji?: string;
 };
 
 type MapComponentProps = {
   currentPosition: GeolocationCoordinates | null;
 };
 
-const createCircularIcon = async (url: string, size = 60): Promise<string> => {
+const createCircularIcon = async (url: string, size = 60, emoji?: string): Promise<string> => {
   const img = new Image();
   img.crossOrigin = 'Anonymous';
   img.src = url;
@@ -36,11 +37,23 @@ const createCircularIcon = async (url: string, size = 60): Promise<string> => {
       canvas.width = size;
       canvas.height = size;
       const ctx = canvas.getContext('2d')!;
+
+      // Draw circle image
       ctx.beginPath();
       ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2, true);
       ctx.closePath();
       ctx.clip();
       ctx.drawImage(img, 0, 0, size, size);
+
+      // Draw emoji in bottom-right
+      if (emoji) {
+        console.log('Drawing emoji:', emoji); 
+        ctx.font = '20px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(emoji, size - 8, size - 6); // pull it up and left a bit        
+      }
+
       resolve(canvas.toDataURL());
     };
   });
@@ -51,12 +64,17 @@ const MapComponent: React.FC<MapComponentProps> = ({ currentPosition }) => {
   const [icons, setIcons] = useState<{ [id: string]: string }>({});
   const [isLoaded, setIsLoaded] = useState(false);
   const [lightboxPin, setLightboxPin] = useState<Pin | null>(null);
+  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral | null>(null);
 
   useEffect(() => {
-    if (currentPosition) {
+    if (currentPosition && !mapCenter) {
+      setMapCenter({
+        lat: currentPosition.latitude,
+        lng: currentPosition.longitude,
+      });
       setIsLoaded(true);
     }
-  }, [currentPosition]);
+  }, [currentPosition, mapCenter]);  
 
   useEffect(() => {
     const fetchPins = async () => {
@@ -70,7 +88,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ currentPosition }) => {
         lat,
         lng,
         timestamp,
-        caption
+        caption,
+        emoji
       }`);
 
       const validPins = data
@@ -81,15 +100,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ currentPosition }) => {
           lng: pin.lng,
           timestamp: new Date(pin.timestamp).getTime(),
           caption: pin.caption,
+          emoji: pin.emoji,
         }))
         .filter((pin) => Date.now() - pin.timestamp < 6 * 60 * 60 * 1000);
 
       setPins(validPins);
 
       const iconPromises = validPins.map(async (pin) => {
-        const iconUrl = await createCircularIcon(pin.image);
+        const iconUrl = await createCircularIcon(pin.image, 60, pin.emoji); // Pass emoji here
         return { id: pin.id, iconUrl };
-      });
+      });      
 
       const iconResults = await Promise.all(iconPromises);
       const iconMap: { [id: string]: string } = {};
@@ -112,10 +132,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ currentPosition }) => {
         {isLoaded && currentPosition && (
           <GoogleMap
             mapContainerStyle={containerStyle}
-            center={{
-              lat: currentPosition.latitude,
-              lng: currentPosition.longitude,
-            }}
+            center={mapCenter!}
             zoom={16}
             options={{
               maxZoom: 22,
@@ -143,7 +160,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ currentPosition }) => {
         )}
       </LoadScript>
 
-      {/* ✅ Lightbox OUTSIDE of the map to prevent overlap issues */}
+      {/* Lightbox OUTSIDE of the map to prevent overlap issues */}
       {lightboxPin && (
         <Lightbox
           image={lightboxPin.image}

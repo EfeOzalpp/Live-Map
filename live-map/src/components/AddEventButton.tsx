@@ -10,6 +10,7 @@ const AddEventButton: React.FC<AddEventButtonProps> = ({ currentPosition }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showCaptionInput, setShowCaptionInput] = useState(false);
   const [caption, setCaption] = useState('');
+  const [emoji, setEmoji] = useState('');
 
   const handleInitialClick = () => {
     setShowCaptionInput(true);
@@ -18,6 +19,7 @@ const AddEventButton: React.FC<AddEventButtonProps> = ({ currentPosition }) => {
   const handleCancel = () => {
     setShowCaptionInput(false);
     setCaption('');
+    setEmoji('');
   };
 
   const handleConfirm = () => {
@@ -49,6 +51,7 @@ const AddEventButton: React.FC<AddEventButtonProps> = ({ currentPosition }) => {
         lng: currentPosition.longitude,
         timestamp: new Date().toISOString(),
         caption,
+        emoji,
       };
 
       await sanityClient.create(doc);
@@ -56,9 +59,10 @@ const AddEventButton: React.FC<AddEventButtonProps> = ({ currentPosition }) => {
 
       // Reset state
       setCaption('');
+      setEmoji('');
       setShowCaptionInput(false);
     } catch (err) {
-      console.error('❌ Error uploading to Sanity:', err);
+      console.error('Error uploading to Sanity:', err);
     }
   };
 
@@ -74,21 +78,34 @@ const AddEventButton: React.FC<AddEventButtonProps> = ({ currentPosition }) => {
         </button>
       ) : (
         <div className="caption-overlay">
-        <div className="caption-input-wrapper">
-          <label className="caption-label">Put a caption for your event:</label>
-          <input
-            type="text"
-            className="caption-input"
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Describe the event..."
-          />
-          <div className="caption-buttons">
-            <button className="caption-cancel" onClick={handleCancel}>✖</button>
-            <button className="caption-confirm" onClick={handleConfirm}>✔</button>
+          <div className="caption-input-wrapper">
+            <label className="caption-label">Put a caption for your event:</label>
+            <input
+              type="text"
+              className="caption-input"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Describe the event..."
+            />
+
+            <label className="caption-label">Optional short text / emoji (max 3):</label>
+            <input
+              type="text"
+              className="caption-input"
+              value={emoji}
+              onChange={(e) => {
+                const value = e.target.value;
+                if ([...value].length <= 3) setEmoji(value);
+              }}
+              placeholder="🎉🔥💬"
+            />
+
+            <div className="caption-buttons">
+              <button className="caption-cancel" onClick={handleCancel}>✖</button>
+              <button className="caption-confirm" onClick={handleConfirm}>✔</button>
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       <input
